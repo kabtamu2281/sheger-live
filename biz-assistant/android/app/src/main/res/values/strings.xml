@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- In-app text lives in core/Strings.kt so the language can be switched instantly. -->
+    <string name="app_name">Business Assistant</string>
+</resources>
