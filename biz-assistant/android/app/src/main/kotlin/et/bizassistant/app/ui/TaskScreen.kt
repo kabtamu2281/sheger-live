@@ -56,7 +56,7 @@ fun TaskScreen(vm: AppViewModel, type: TaskType) {
         ScrollColumn {
             NoticeCard(t(if (user.aiConsentGranted) Str.AI_ENABLED else Str.AI_DISABLED), warning = !user.aiConsentGranted)
             if (vm.missingFields.isNotEmpty()) {
-                NoticeCard(t(Str.MISSING_INFO) + "\n" + vm.missingFields.joinToString("\n") { "• " + t(it.label) }, warning = true)
+                NoticeCard(t(Str.MISSING_INFO) + "\n" + vm.missingFields.map { "• " + t(it.label) }.joinToString("\n"), warning = true)
             }
 
             type.fields.forEach { field ->
@@ -113,7 +113,7 @@ fun TaskScreen(vm: AppViewModel, type: TaskType) {
     if (confirmSend) {
         ConfirmDialog(
             title = t(Str.WHAT_IS_SENT),
-            body = t(Str.CONFIRM_SEND) + "\n\n" + type.fields.mapNotNull { f -> inputs[f.key]?.takeIf { it.isNotBlank() }?.let { "${t(f.label)}: $it" } }
+            body = t(Str.CONFIRM_SEND) + "\n\n" + type.fields.filter { !inputs[it.key].isNullOrBlank() }.map { f -> "${t(f.label)}: ${inputs[f.key]}" }
                 .joinToString("\n").take(600),
             confirm = t(Str.SEND),
             onConfirm = {

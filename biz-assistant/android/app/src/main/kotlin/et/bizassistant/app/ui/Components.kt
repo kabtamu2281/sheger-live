@@ -74,6 +74,7 @@ fun Field(
     hint: String? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
+    val support = error ?: hint
     OutlinedTextField(
         value = value,
         onValueChange = onChange,
@@ -82,7 +83,7 @@ fun Field(
         singleLine = !multiline,
         minLines = if (multiline) 3 else 1,
         isError = error != null,
-        supportingText = (error ?: hint)?.let { { Text(it) } },
+        supportingText = if (support != null) { { Text(support) } } else null,
         keyboardOptions = if (numeric) KeyboardOptions(keyboardType = KeyboardType.Decimal) else KeyboardOptions.Default,
         trailingIcon = trailing,
     )
@@ -131,7 +132,7 @@ fun ConfirmDialog(title: String, body: String?, confirm: String, onConfirm: () -
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
-        text = body?.let { { Text(it) } },
+        text = if (body != null) { { Text(body) } } else null,
         confirmButton = {
             TextButton(onClick = { onConfirm(); onDismiss() }) {
                 Text(confirm, color = if (destructive) MaterialTheme.colorScheme.error else Color.Unspecified)

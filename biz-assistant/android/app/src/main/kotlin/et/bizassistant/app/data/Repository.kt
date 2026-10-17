@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 
 class Repository(private val db: AppDatabase) {
     private val settings = db.settings()
-    private val records = db.records()
+    private val recordDao = db.records()
     private val documents = db.documents()
     private val conversations = db.conversations()
 
@@ -25,7 +25,7 @@ class Repository(private val db: AppDatabase) {
     val language: Flow<LanguagePreferenceEntity> = settings.language().map { it ?: LanguagePreferenceEntity() }
     val quota: Flow<UsageQuota?> = settings.quota().map { it?.toCore() }
     val subscription: Flow<SubscriptionEntity> = settings.subscription().map { it ?: SubscriptionEntity() }
-    val records: Flow<List<BusinessRecord>> = this.records.all().map { list -> list.map { it.toCore() } }
+    val records: Flow<List<BusinessRecord>> = recordDao.all().map { list -> list.map { it.toCore() } }
     val documentList: Flow<List<GeneratedDocumentEntity>> = documents.all()
     val templates: Flow<List<TaskTemplateEntity>> = documents.templates()
     val conversationList: Flow<List<ConversationEntity>> = conversations.all()
@@ -51,7 +51,7 @@ class Repository(private val db: AppDatabase) {
     suspend fun saveSubscription(plan: PlanId, active: Boolean) =
         settings.saveSubscription(SubscriptionEntity(plan = plan.name.lowercase(), status = if (active) "active" else "none"))
 
-    suspend fun addRecord(r: BusinessRecord): Long = records.insert(
+    suspend fun addRecord(r: BusinessRecord): Long = recordDao.insert(
         BusinessRecordEntity(
             type = r.type.name, date = r.date.toString(), description = r.description.trim(), category = r.category.trim(),
             quantity = r.quantity.toPlainString(), unitAmountMinor = r.unitAmount.minor,
@@ -59,16 +59,16 @@ class Repository(private val db: AppDatabase) {
         ),
     )
 
-    suspend fun deleteRecord(id: Long) = records.delete(id)
+    suspend fun deleteRecord(id: Long) = recordDao.delete(id)
 
     suspend fun recordsBetween(from: LocalDate, to: LocalDate): List<BusinessRecord> =
-        records.between(from.toString(), to.toString()).map { it.toCore() }
+        recordDao.between(from.toString(), to.toString()).map { it.toCore() }
 
     /** Deletes records older than the user's retention setting. Returns how many were removed. */
     suspend fun applyRetention(today: LocalDate = LocalDate.now()): Int {
         val months = (settings.userNow() ?: UserEntity()).recordRetentionMonths
         if (months <= 0) return 0
-        return records.deleteOlderThan(today.minusMonths(months.toLong()).toString())
+        return recordDao.deleteOlderThan(today.minusMonths(months.toLong()).toString())
     }
 
     suspend fun startConversation(taskType: String, language: AppLanguage, title: String): Long =
@@ -100,7 +100,7 @@ class Repository(private val db: AppDatabase) {
         documents.deleteAllTemplates()
     }
 
-    suspend fun deleteAllRecords() = records.deleteAll()
+    suspend fun deleteAllRecords() = recordDao.deleteAll()
 
     /** Wipes every table: records, documents, conversations, profile, preferences and cached quota. */
     suspend fun deleteEverything() = db.clearAllTables()
