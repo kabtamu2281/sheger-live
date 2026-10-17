@@ -1,0 +1,18 @@
+{
+  "name": "biz-assistant-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Secure AI gateway for the Local Business Assistant Android app. Holds the AI provider key; the app never sees it.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0"
+  }
+}
