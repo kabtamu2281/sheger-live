@@ -2,6 +2,8 @@
 # Fails if the Android client source (or a built APK) contains anything that looks like an
 # AI provider key or a direct call to the AI provider. The app must only talk to our backend.
 set -euo pipefail
+apks=()
+for a in "$@"; do apks+=("$(realpath "$a")"); done
 cd "$(dirname "$0")/.."
 
 PATTERN='sk-ant-|ANTHROPIC_API_KEY|x-api-key|api\.anthropic\.com|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY'
@@ -13,7 +15,7 @@ if grep -rEn --include='*.kt' --include='*.kts' --include='*.xml' --include='*.p
   status=1
 fi
 
-for apk in "$@"; do
+for apk in "${apks[@]}"; do
   tmp=$(mktemp -d)
   unzip -q -o "$apk" -d "$tmp"
   if grep -rEla "$PATTERN" "$tmp"; then
