@@ -1,0 +1,52 @@
+name: Business Assistant
+
+on:
+  push:
+    paths: ['biz-assistant/**', '.github/workflows/biz-assistant.yml']
+  pull_request:
+    paths: ['biz-assistant/**', '.github/workflows/biz-assistant.yml']
+  workflow_dispatch:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biz-assistant/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+
+  android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: biz-assistant/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: No secrets in client source
+        run: ../tools/check-no-secrets.sh
+      - name: Unit tests (calculations, languages, AI fallbacks)
+        run: ./gradlew --no-daemon :core:test
+      - name: Build debug APK
+        # Set the BIZ_BACKEND_URL repository variable to point release builds at your deployed backend.
+        run: ./gradlew --no-daemon :app:assembleDebug -PbackendUrl="${{ vars.BIZ_BACKEND_URL || 'http://10.0.2.2:8080' }}"
+      - name: No secrets in the built APK
+        run: ../tools/check-no-secrets.sh app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: business-assistant-debug-apk
+          path: biz-assistant/android/app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-test-reports
+          path: biz-assistant/android/core/build/reports/tests/
