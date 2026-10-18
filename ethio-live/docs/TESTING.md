@@ -15,7 +15,7 @@ Results below are from real runs. Anything not listed as run was not run.
 | String resources check | `python3 tools/i18n/gen.py` | **passed** (502 keys in English and Amharic, 93 in Afaan Oromo, placeholders match) |
 | RPC contract check (app and dashboard call only existing SQL functions with existing parameter names) | script in this doc's appendix | **passed** (60 app calls, all dashboard calls) |
 | Android app data and streaming layers compiled against the real supabase-kt 3.1.4 and Agora 4.5.2 jars | JVM harness | **passed** |
-| Android `:app:assembleDebug` (full build with Compose UI) | `./gradlew :app:assembleDebug` | **Runs in CI** (`.github/workflows/ethio-live.yml`). The development container cannot reach Google's Maven repository, so the full Android build was not run locally. See the PR's CI result. |
+| Android `:app:assembleDebug` (full build with Compose UI) | `./gradlew :app:assembleDebug` | **passed in GitHub Actions** (`.github/workflows/ethio-live.yml`, 2026-10-18), APK uploaded as the `ethio-live-debug-apk` artifact and scanned for secrets. Not run in the development container, which cannot reach Google's Maven repository. |
 
 Not yet run anywhere: instrumented UI tests on a device, live streaming between two real devices, Google Play test purchases, Chapa sandbox payments, push delivery. Each needs the credentials listed in [SETUP.md](SETUP.md) and is covered by the manual checklist below.
 
