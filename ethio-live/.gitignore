@@ -1,0 +1,8 @@
+admin/node_modules/
+admin/dist/
+admin/.env.local
+supabase/.env
+supabase/.temp/
+supabase/.branches/
+supabase/tests/node_modules/
+__pycache__/

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Signal arcs -->
+    <path android:strokeColor="#FFFFB627" android:strokeWidth="4" android:strokeLineCap="round"
+        android:pathData="M36,36 A26,26 0 0,1 72,36" />
+    <path android:strokeColor="#FF13C38B" android:strokeWidth="4" android:strokeLineCap="round"
+        android:pathData="M42,42 A17,17 0 0,1 66,42" />
+    <!-- Rounded play mark -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M47,50 Q47,47 49.6,48.4 L64,56.6 Q66.6,58 64,59.4 L49.6,67.6 Q47,69 47,66 Z" />
+    <!-- Live dot -->
+    <path android:fillColor="#FFFF4F6D" android:pathData="M71,68 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+</vector>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status bar icon: a broadcast dot with signal arcs. Must stay single-colour white. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,9.5a2.5,2.5 0,1 1,0 5a2.5,2.5 0,1 1,0 -5z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7.05,7.05l1.41,1.41C7.56,9.37 7,10.62 7,12s0.56,2.63 1.46,3.54l-1.41,1.41C5.79,15.68 5,13.93 5,12s0.79,-3.68 2.05,-4.95zM16.95,7.05C18.21,8.32 19,10.07 19,12s-0.79,3.68 -2.05,4.95l-1.41,-1.41C16.44,14.63 17,13.38 17,12s-0.56,-2.63 -1.46,-3.54l1.41,-1.41z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4.22,4.22l1.42,1.42C4.01,7.27 3,9.51 3,12s1.01,4.73 2.64,6.36l-1.42,1.42C2.23,17.79 1,15.04 1,12S2.23,6.21 4.22,4.22zM19.78,4.22C21.77,6.21 23,8.96 23,12s-1.23,5.79 -3.22,7.78l-1.42,-1.42C19.99,16.73 21,14.49 21,12s-1.01,-4.73 -2.64,-6.36l1.42,-1.42z" />
+</vector>

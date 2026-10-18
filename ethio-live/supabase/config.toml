@@ -1,0 +1,61 @@
+# Supabase CLI configuration for Ethio Live (`supabase start` for local development).
+project_id = "ethio-live"
+
+[api]
+port = 54321
+schemas = ["public"]
+max_rows = 200
+
+[db]
+port = 54322
+major_version = 15
+
+[auth]
+site_url = "https://ethiolive.app"
+additional_redirect_urls = ["ethiolive://auth"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+
+[auth.rate_limit]
+email_sent = 4
+sms_sent = 30
+token_verifications = 30
+sign_in_sign_ups = 30
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+secure_password_change = true
+max_frequency = "60s"
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "60s"
+# Configure an SMS provider (e.g. Twilio, MessageBird, Vonage) in the dashboard; Ethiopian (+251) delivery must be verified with the provider.
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.external.google]
+enabled = false
+client_id = "env(GOOGLE_WEB_CLIENT_ID)"
+secret = "env(GOOGLE_WEB_CLIENT_SECRET)"
+
+[storage]
+file_size_limit = "5MiB"
+
+[functions.chapa-webhook]
+verify_jwt = false
+
+[functions.play-notifications]
+verify_jwt = false
+
+[functions.send-push]
+verify_jwt = false
+
+[functions.maintenance]
+verify_jwt = false

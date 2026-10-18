@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_night">#FF120B24</color>
+    <color name="brand_violet">#FF6B3DF5</color>
+    <color name="brand_gold">#FFFFB627</color>
+    <color name="brand_emerald">#FF13C38B</color>
+    <color name="brand_coral">#FFFF4F6D</color>
+</resources>
