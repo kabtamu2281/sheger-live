@@ -1,0 +1,11 @@
+{
+  "name": "ethio-live-db-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 ./*.test.js"
+  },
+  "dependencies": {
+    "pg": "8.13.1"
+  }
+}
