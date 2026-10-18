@@ -50,11 +50,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    androidResources {
-        @Suppress("UnstableApiUsage")
-        generateLocaleConfig = true
-    }
-
     signingConfigs {
         if (keystoreProps.getProperty("storeFile") != null) {
             create("release") {
