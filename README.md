@@ -1,6 +1,6 @@
 # Sheger Live — Android app downloads
 
-**[⬇ Download Sheger Live for Android](https://github.com/kabtamu2281/sheger-live/raw/main/sheger-live.apk)**
+**[⬇ Download Sheger Live for Android](https://github.com/kabtamu2281/sheger-live/releases/latest/download/sheger-live.apk)**
 
 Free beta · version 1.0.0-beta.2 · Android 8+ (64-bit) · about 31 MB
 
@@ -25,3 +25,5 @@ Website, privacy policy and terms: https://sheger-live.web.app
 Support: nkabtamu20@gmail.com
 
 Sheger Live is for adults 18+. Please follow the [Community Guidelines](https://sheger-live.web.app/guidelines).
+
+All versions: [Releases](https://github.com/kabtamu2281/sheger-live/releases)
