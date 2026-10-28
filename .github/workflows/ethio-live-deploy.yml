@@ -99,9 +99,9 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD"
+            supabase db push --linked --dry-run --password "$SUPABASE_DB_PASSWORD"
           else
-            supabase db push --password "$SUPABASE_DB_PASSWORD"
+            supabase db push --linked --password "$SUPABASE_DB_PASSWORD"
           fi
 
       - name: Set Edge Function secrets
@@ -125,4 +125,4 @@ jobs:
             stream-token play-verify play-notifications payments-chapa chapa-webhook delete-account send-push maintenance
 
       - name: Show applied migrations
-        run: supabase migration list --password "$SUPABASE_DB_PASSWORD"
+        run: supabase migration list --linked --password "$SUPABASE_DB_PASSWORD"
