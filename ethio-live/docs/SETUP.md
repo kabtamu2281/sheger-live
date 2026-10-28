@@ -40,6 +40,9 @@ supabase functions serve --env-file supabase/.env   # optional: run Edge Functio
    supabase secrets set --env-file supabase/.env
    supabase functions deploy stream-token play-verify play-notifications payments-chapa chapa-webhook delete-account send-push maintenance
    ```
+   Or let GitHub Actions do steps 3 and 4: add the secrets and variable listed at the top of
+   `.github/workflows/ethio-live-deploy.yml`, then run **Ethio Live deploy** from the Actions tab
+   (tick *dry run* first to see which migrations would be applied).
 5. Auth settings (dashboard, Authentication):
    - URL configuration: add `ethiolive://auth` to Redirect URLs (email confirmation and password recovery open the app).
    - Phone: configure an SMS provider (Twilio, MessageBird, Vonage or Textlocal) and confirm with them that +251 numbers are delivered. Phone sign-in does not work until this is done.
