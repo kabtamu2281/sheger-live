@@ -5,12 +5,14 @@ name: Ethio Live deploy
 #
 # Repository secrets (Settings > Secrets and variables > Actions > Secrets):
 #   SUPABASE_ACCESS_TOKEN   personal access token from supabase.com > Account > Access Tokens
-#   SUPABASE_PROJECT_REF    the project ref, e.g. abcdefghijklmnop from https://abcdefghijklmnop.supabase.co
+#   SUPABASE_PROJECT_REF    optional; the project ref (Project Settings > General > Project ID) or the project URL
 #   SUPABASE_DB_PASSWORD    the database password chosen when the project was created
 #   AGORA_APP_CERTIFICATE   Agora primary certificate (live video and audio)
 #   CRON_SECRET             optional; shared secret for the maintenance and send-push schedulers
 # Repository variable (Variables tab):
 #   ETHIO_AGORA_APP_ID      Agora App ID (the same one the Android build uses)
+#   ETHIO_SUPABASE_URL      project URL, https://<ref>.supabase.co; the ref is taken from it when the secret is
+#                           missing or unusable
 #
 # Before the first run, enable pg_cron and pg_net in the Supabase dashboard (Database > Extensions) so the
 # maintenance job is scheduled by the migrations.
@@ -39,7 +41,8 @@ jobs:
         working-directory: ethio-live
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      PROJECT_REF_INPUT: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_URL_INPUT: ${{ vars.ETHIO_SUPABASE_URL }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       AGORA_APP_ID: ${{ vars.ETHIO_AGORA_APP_ID }}
       AGORA_APP_CERTIFICATE: ${{ secrets.AGORA_APP_CERTIFICATE }}
@@ -50,9 +53,35 @@ jobs:
       - name: Check required settings
         run: |
           missing=0
-          for name in SUPABASE_ACCESS_TOKEN SUPABASE_PROJECT_REF SUPABASE_DB_PASSWORD; do
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD; do
             if [ -z "${!name}" ]; then echo "::error::Repository secret $name is not set"; missing=1; fi
           done
+
+          # A ref is 20 lowercase letters. Accept it bare, inside a project or dashboard URL, or with stray
+          # whitespace, from the secret first and then from the ETHIO_SUPABASE_URL variable.
+          extract_ref() {
+            local v
+            v=$(printf '%s' "$1" | tr -d '[:space:]')
+            if [[ $v =~ ^[a-z]{20}$ ]]; then printf '%s' "$v"
+            elif [[ $v =~ ^(https?://)?(db\.)?([a-z]{20})\.supabase\.(co|com|in)(/.*)?$ ]]; then printf '%s' "${BASH_REMATCH[3]}"
+            elif [[ $v =~ /project/([a-z]{20})(/.*)?$ ]]; then printf '%s' "${BASH_REMATCH[1]}"
+            fi
+          }
+          describe() {
+            local v
+            v=$(printf '%s' "$1" | tr -d '[:space:]')
+            if [ -z "$v" ]; then echo "empty"; return; fi
+            echo "${#v} characters$([[ $v =~ [A-Z] ]] && echo ', has capital letters')$([[ $v =~ [0-9] ]] && echo ', has digits')$([[ $v == *.* ]] && echo ', has dots')$([[ $1 =~ [[:space:]] ]] && echo ', had spaces or line breaks')"
+          }
+          ref=$(extract_ref "$PROJECT_REF_INPUT")
+          [ -n "$ref" ] || ref=$(extract_ref "$SUPABASE_URL_INPUT")
+          if [ -n "$ref" ]; then
+            echo "::add-mask::$ref"
+            echo "SUPABASE_PROJECT_REF=$ref" >> "$GITHUB_ENV"
+          else
+            echo "::error::No usable Supabase project ref. SUPABASE_PROJECT_REF secret: $(describe "$PROJECT_REF_INPUT"); ETHIO_SUPABASE_URL variable: $(describe "$SUPABASE_URL_INPUT"). Expected 20 lowercase letters (Project Settings > General > Project ID) or https://<ref>.supabase.co"
+            missing=1
+          fi
           if [ -z "$AGORA_APP_ID" ] || [ -z "$AGORA_APP_CERTIFICATE" ]; then
             echo "::warning::ETHIO_AGORA_APP_ID variable or AGORA_APP_CERTIFICATE secret is not set; live video and audio will report that streaming is not configured"
           fi
@@ -70,9 +99,9 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD"
+            supabase db push --linked --dry-run --password "$SUPABASE_DB_PASSWORD"
           else
-            supabase db push --password "$SUPABASE_DB_PASSWORD"
+            supabase db push --linked --password "$SUPABASE_DB_PASSWORD"
           fi
 
       - name: Set Edge Function secrets
@@ -96,4 +125,4 @@ jobs:
             stream-token play-verify play-notifications payments-chapa chapa-webhook delete-account send-push maintenance
 
       - name: Show applied migrations
-        run: supabase migration list --password "$SUPABASE_DB_PASSWORD"
+        run: supabase migration list --linked --password "$SUPABASE_DB_PASSWORD"
