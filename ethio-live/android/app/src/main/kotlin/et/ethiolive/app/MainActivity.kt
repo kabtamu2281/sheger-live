@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
                 EthioLiveRoot(container = container, activity = this)
             }
         }
+        if (BuildConfig.DEBUG && savedInstanceState == null) CrashReport.showPending(this)
     }
 
     override fun onNewIntent(intent: Intent) {

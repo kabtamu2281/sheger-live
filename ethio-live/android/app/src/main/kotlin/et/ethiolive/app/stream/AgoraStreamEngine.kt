@@ -3,6 +3,8 @@ package et.ethiolive.app.stream
 import android.content.Context
 import android.view.TextureView
 import android.view.View
+import et.ethiolive.core.AppException
+import et.ethiolive.core.ServerError
 import et.ethiolive.core.StreamQuality
 import io.agora.rtc2.ChannelMediaOptions
 import io.agora.rtc2.Constants
@@ -56,6 +58,8 @@ class AgoraStreamEngine(private val context: Context, private val appId: String)
                 Constants.CONNECTION_STATE_FAILED -> ConnectionState.FAILED
                 else -> ConnectionState.DISCONNECTED
             }
+            // A rejected token or App ID ends here rather than in onError; report it so the room does not wait forever.
+            if (state == Constants.CONNECTION_STATE_FAILED) _signals.tryEmit(StreamSignal.LocalPublishFailed("connection_$reason"))
         }
 
         override fun onTokenPrivilegeWillExpire(token: String?) { _signals.tryEmit(StreamSignal.TokenExpiring) }
@@ -90,16 +94,30 @@ class AgoraStreamEngine(private val context: Context, private val appId: String)
         override fun onError(err: Int) { _signals.tryEmit(StreamSignal.Error(err)) }
     }
 
-    private fun engine(): RtcEngine = engine ?: RtcEngine.create(
-        RtcEngineConfig().apply {
-            mContext = context.applicationContext
-            mAppId = appId
-            mEventHandler = handler
-            mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING
-        },
-    ).also {
-        it.enableAudioVolumeIndication(400, 3, false)
-        engine = it
+    /** Creates the SDK on first use; a failure (bad App ID, missing native library) becomes an error, not a crash. */
+    private fun engine(): RtcEngine {
+        engine?.let { return it }
+        val created = sdk("agora_init") {
+            RtcEngine.create(
+                RtcEngineConfig().apply {
+                    mContext = context.applicationContext
+                    mAppId = appId
+                    mEventHandler = handler
+                    mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING
+                },
+            ).also { it.enableAudioVolumeIndication(400, 3, false) }
+        }
+        engine = created
+        return created
+    }
+
+    /** Runs an SDK call, turning anything it throws into [ServerError.STREAMING_UNAVAILABLE] with the cause kept. */
+    private inline fun <T> sdk(step: String, block: () -> T): T = try {
+        block()
+    } catch (e: AppException) {
+        throw e
+    } catch (e: Throwable) {
+        throw AppException(ServerError.STREAMING_UNAVAILABLE, IllegalStateException("$step: ${e.message}", e))
     }
 
     private fun applyQuality(e: RtcEngine, q: StreamQuality) {
@@ -116,7 +134,7 @@ class AgoraStreamEngine(private val context: Context, private val appId: String)
         )
     }
 
-    override fun startPreview(audioOnly: Boolean, quality: StreamQuality) {
+    override fun startPreview(audioOnly: Boolean, quality: StreamQuality): Unit = sdk("agora_preview") {
         val e = engine()
         e.enableAudio()
         if (audioOnly) {
@@ -138,7 +156,7 @@ class AgoraStreamEngine(private val context: Context, private val appId: String)
         autoSubscribeVideo = !audioOnly
     }
 
-    override fun join(params: JoinParams) {
+    override fun join(params: JoinParams): Unit = sdk("agora_join") {
         val e = engine()
         e.enableAudio()
         if (params.audioOnly) e.disableVideo() else {
@@ -205,10 +223,13 @@ class AgoraStreamEngine(private val context: Context, private val appId: String)
     override fun setQuality(quality: StreamQuality) { engine?.let { applyQuality(it, quality) } }
 
     override fun createVideoView(uid: Int, local: Boolean): View {
-        val e = engine()
         val view = views.getOrPut(uid) { TextureView(context) }
-        if (local) e.setupLocalVideo(VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, 0))
-        else e.setupRemoteVideo(VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, uid))
+        // Called from composition, so it must not throw: without an engine the view simply stays blank.
+        runCatching {
+            val e = engine()
+            if (local) e.setupLocalVideo(VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, 0))
+            else e.setupRemoteVideo(VideoCanvas(view, VideoCanvas.RENDER_MODE_HIDDEN, uid))
+        }.onFailure { _signals.tryEmit(StreamSignal.LocalPublishFailed("agora_view")) }
         return view
     }
 

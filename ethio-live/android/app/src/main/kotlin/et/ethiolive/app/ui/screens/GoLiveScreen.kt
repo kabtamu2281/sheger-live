@@ -105,7 +105,16 @@ fun GoLiveScreen(container: AppContainer, nav: Nav) {
     // Local camera preview so the host can frame themselves before going live (nothing is published yet).
     DisposableEffect(mode, previewOn) {
         if (previewOn && !audio && BackendConfig.streamingConfigured) {
-            scope.launch { container.stream.startPreview(false, et.ethiolive.core.QualityAdapter.initial(container.prefs.prefs.first().quality)) }
+            scope.launch {
+                try {
+                    container.stream.startPreview(false, et.ethiolive.core.QualityAdapter.initial(container.prefs.prefs.first().quality))
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    error = e
+                    previewOn = false
+                }
+            }
         }
         onDispose { }
     }
@@ -133,9 +142,14 @@ fun GoLiveScreen(container: AppContainer, nav: Nav) {
         }
     }
 
+    // Once Android stops showing the permission dialog ("don't ask again"), only app settings can grant it.
+    var permissionBlocked by remember { mutableStateOf(false) }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         permissionDenied = !result.values.all { it }
         if (!permissionDenied) previewOn = true
+        val activity = context as? android.app.Activity
+        permissionBlocked = permissionDenied && activity != null && result.filterValues { !it }.keys
+            .none { androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
     }
     val coverPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> if (uri != null) coverUri = uri }
 
@@ -208,7 +222,16 @@ fun GoLiveScreen(container: AppContainer, nav: Nav) {
             Text(stringResource(R.string.go_live_guidelines), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
             if (!hasPermissions()) {
-                PrimaryButton(stringResource(R.string.allow_camera_mic), onClick = { permissionLauncher.launch(needed) })
+                if (permissionBlocked) {
+                    PrimaryButton(stringResource(R.string.open_app_settings), onClick = {
+                        context.startActivity(
+                            android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                .setData(android.net.Uri.fromParts("package", context.packageName, null)),
+                        )
+                    })
+                } else {
+                    PrimaryButton(stringResource(R.string.allow_camera_mic), onClick = { permissionLauncher.launch(needed) })
+                }
             } else {
                 if (!previewOn && !audio) SecondaryButton(stringResource(R.string.preview_camera), onClick = { previewOn = true })
                 Spacer(Modifier.height(8.dp))

@@ -302,6 +302,7 @@
     <string name="onboard_3_body">በቀጥታ ያስተላልፉ፣ ደጋፊዎችዎን ያሳድጉ፣ ከሚቀበሏቸው ስጦታዎች ገቢ ያግኙ።</string>
     <string name="onboard_3_title">እንደ ፈጣሪ ያብሩ</string>
     <string name="open">ክፈት</string>
+    <string name="open_app_settings">ፈቃድ ለመስጠት ቅንብሮችን ክፈት</string>
     <string name="past_lives">ያለፉ ስርጭቶች</string>
     <string name="pay_chapa">በChapa ይክፈሉ</string>
     <string name="pay_google_play">በGoogle Play ይክፈሉ</string>

@@ -7,6 +7,7 @@ S = {
 "actions_on_account": "በመለያዎ ላይ የተወሰዱ እርምጃዎች",
 "all": "ሁሉም",
 "allow_camera_mic": "ካሜራና ማይክሮፎን ፍቀድ",
+"open_app_settings": "ፈቃድ ለመስጠት ቅንብሮችን ክፈት",
 "appeal": "ይግባኝ",
 "appeal_message": "ይህ ውሳኔ ለምን እንደገና መታየት እንዳለበት ይንገሩን",
 "appeal_sent": "ይግባኝዎ ተልኳል። ሌላ ገምጋሚ ያየዋል።",

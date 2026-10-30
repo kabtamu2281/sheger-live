@@ -14,6 +14,7 @@ class EthioLiveApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        if (BuildConfig.DEBUG) CrashReport.install(this)
         container = AppContainer(this)
         EthioMessagingService.ensureChannels(this)
         initPush()

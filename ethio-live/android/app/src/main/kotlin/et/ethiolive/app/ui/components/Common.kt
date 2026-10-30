@@ -300,5 +300,14 @@ fun errorRes(error: ServerError): Int = when (error) {
 }
 
 @Composable
-fun errorMessage(error: Throwable?): String =
-    stringResource(errorRes((error as? AppException)?.error ?: if (error == null) ServerError.UNKNOWN else ServerError.parse(error.message)))
+fun errorMessage(error: Throwable?): String {
+    val text = stringResource(errorRes((error as? AppException)?.error ?: if (error == null) ServerError.UNKNOWN else ServerError.parse(error.message)))
+    // Test builds add the underlying cause so testers can report the exact failure.
+    val detail = if (et.ethiolive.app.BuildConfig.DEBUG) error?.let(::debugDetail) else null
+    return if (detail == null) text else "$text\n($detail)"
+}
+
+private fun debugDetail(error: Throwable): String? {
+    val cause = if (error is AppException) error.cause ?: return null else error
+    return "${cause.message ?: cause::class.java.simpleName}".take(200)
+}
