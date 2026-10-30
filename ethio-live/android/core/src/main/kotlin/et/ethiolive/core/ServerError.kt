@@ -6,6 +6,15 @@ package et.ethiolive.core
  */
 enum class ServerError(val code: String) {
     NOT_AUTHENTICATED("not_authenticated"),
+    EMAIL_ALREADY_REGISTERED("user_already_exists"),
+    EMAIL_INVALID("email_address_invalid"),
+    EMAIL_NOT_AUTHORIZED("email_address_not_authorized"),
+    EMAIL_NOT_CONFIRMED("email_not_confirmed"),
+    INVALID_CREDENTIALS("invalid_credentials"),
+    WEAK_PASSWORD("weak_password"),
+    SIGNUP_DISABLED("signup_disabled"),
+    ALREADY_REGISTERED("already_registered"),
+    TERMS_REQUIRED("terms_required"),
     PROFILE_REQUIRED("profile_required"),
     ACCOUNT_SUSPENDED("account_suspended"),
     ACCOUNT_BANNED("account_banned"),
@@ -55,12 +64,21 @@ enum class ServerError(val code: String) {
 
     companion object {
         private val byCode = entries.associateBy { it.code }
+
+        /** Other names Supabase Auth uses for the same situations. */
+        private val aliases = mapOf(
+            "email_exists" to EMAIL_ALREADY_REGISTERED,
+            "over_email_send_rate_limit" to RATE_LIMITED,
+            "over_request_rate_limit" to RATE_LIMITED,
+            "over_sms_send_rate_limit" to RATE_LIMITED,
+            "email_provider_disabled" to SIGNUP_DISABLED,
+        )
         private val token = Regex("[a-z][a-z0-9_]{2,60}")
 
         /** Finds the first known code in an error message such as `"P0001: insufficient_balance"`. */
         fun parse(message: String?): ServerError {
             if (message.isNullOrBlank()) return UNKNOWN
-            return token.findAll(message).firstNotNullOfOrNull { byCode[it.value] } ?: UNKNOWN
+            return token.findAll(message).firstNotNullOfOrNull { byCode[it.value] ?: aliases[it.value] } ?: UNKNOWN
         }
     }
 }

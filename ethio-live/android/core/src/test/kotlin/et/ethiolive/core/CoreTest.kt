@@ -34,6 +34,15 @@ class ServerErrorTest {
         assertEquals(ServerError.UNKNOWN, ServerError.parse("something exploded"))
         assertEquals(ServerError.UNKNOWN, ServerError.parse(null))
     }
+
+    @Test fun parsesSupabaseAuthCodes() {
+        assertEquals(ServerError.EMAIL_ALREADY_REGISTERED, ServerError.parse("user_already_exists User already registered"))
+        assertEquals(ServerError.EMAIL_ALREADY_REGISTERED, ServerError.parse("email_exists"))
+        assertEquals(ServerError.RATE_LIMITED, ServerError.parse("over_email_send_rate_limit email rate limit exceeded"))
+        assertEquals(ServerError.WEAK_PASSWORD, ServerError.parse("weak_password Password should be at least 6 characters."))
+        assertEquals(ServerError.EMAIL_NOT_AUTHORIZED, ServerError.parse("email_address_not_authorized"))
+        assertEquals(ServerError.ALREADY_REGISTERED, ServerError.parse("P0001: already_registered"))
+    }
 }
 
 class ValidationTest {

@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
+import et.ethiolive.app.BuildConfig
 import et.ethiolive.app.R
 import et.ethiolive.app.ui.theme.Brand
 import et.ethiolive.core.AppException
@@ -252,6 +253,14 @@ fun NotConfiguredNotice(@StringRes message: Int, modifier: Modifier = Modifier) 
 @StringRes
 fun errorRes(error: ServerError): Int = when (error) {
     ServerError.NOT_AUTHENTICATED -> R.string.err_not_authenticated
+    ServerError.EMAIL_ALREADY_REGISTERED, ServerError.ALREADY_REGISTERED -> R.string.err_email_already_registered
+    ServerError.EMAIL_INVALID -> R.string.err_email_invalid
+    ServerError.EMAIL_NOT_AUTHORIZED -> R.string.err_email_not_authorized
+    ServerError.EMAIL_NOT_CONFIRMED -> R.string.err_email_not_confirmed
+    ServerError.INVALID_CREDENTIALS -> R.string.err_invalid_credentials
+    ServerError.WEAK_PASSWORD -> R.string.err_weak_password
+    ServerError.SIGNUP_DISABLED -> R.string.err_signup_disabled
+    ServerError.TERMS_REQUIRED -> R.string.err_terms_required
     ServerError.PROFILE_REQUIRED -> R.string.err_profile_required
     ServerError.ACCOUNT_SUSPENDED -> R.string.err_account_suspended
     ServerError.ACCOUNT_BANNED -> R.string.err_account_banned
@@ -300,5 +309,16 @@ fun errorRes(error: ServerError): Int = when (error) {
 }
 
 @Composable
-fun errorMessage(error: Throwable?): String =
-    stringResource(errorRes((error as? AppException)?.error ?: if (error == null) ServerError.UNKNOWN else ServerError.parse(error.message)))
+fun errorMessage(error: Throwable?): String {
+    val code = (error as? AppException)?.error ?: if (error == null) ServerError.UNKNOWN else ServerError.parse(error.message)
+    val text = stringResource(errorRes(code))
+    // Debug (test) builds also show what actually failed, so testers can report it; release builds never do.
+    return if (BuildConfig.DEBUG && error != null && (code == ServerError.UNKNOWN || code == ServerError.NETWORK)) {
+        "$text\n(${errorDetail(error)})"
+    } else text
+}
+
+private fun errorDetail(error: Throwable): String {
+    val cause = if (error is AppException) error.cause ?: error else error
+    return "${cause.javaClass.simpleName}: ${cause.message.orEmpty()}".take(200)
+}
