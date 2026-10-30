@@ -22,6 +22,13 @@ test('signup enforces minimum age, reserved and duplicate usernames', async () =
   await rejects(db.as(other, `select complete_signup('SELAM', 'Other', '1990-01-01', 'en', '2026-10')`), 'username_taken');
 });
 
+test('my_account asks for the profile step until signup is complete', async () => {
+  const [{ id }] = await db.sql(`insert into auth.users (email) values ('noprofile@example.test') returning id`);
+  await rejects(db.call(id, 'my_account'), 'profile_required');
+  await db.as(id, `select complete_signup('noprofile', 'No Profile', '1990-01-01', 'en', '2026-10')`);
+  assert.equal((await db.call(id, 'my_account')).profile.username, 'noprofile');
+});
+
 test('younger users get protective defaults and cannot opt into Nearby', async () => {
   const minor = await db.newUser({ adult: false });
   const acct = await db.call(minor, 'my_account');
