@@ -42,6 +42,6 @@ Sheger Live is for adults 18+. Please follow the [Community Guidelines](https://
 
 **[⬇ Download Ethio Live test build](https://github.com/kabtamu2281/sheger-live/releases/download/ethio-live-test/ethio-live.apk)**
 
-For testers only · debug build · Android 8+ · about 60 MB. Installs next to Sheger Live; it's a separate app.
+For testers only · debug build · Android 8+ · about 95 MB. Installs next to Sheger Live; it's a separate app.
 
 Install it the same way as above. Sign up with **email** (phone sign-in isn't set up yet). To update, download from the same link and install over the old version.
