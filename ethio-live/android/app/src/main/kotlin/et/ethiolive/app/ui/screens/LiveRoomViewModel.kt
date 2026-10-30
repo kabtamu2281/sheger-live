@@ -184,7 +184,7 @@ class LiveRoomViewModel(private val c: AppContainer, val roomId: String) : ViewM
         viewModelScope.launch {
             runCatching { c.live.failLive(roomId, reason) }
             c.stream.leave()
-            _state.value = _state.value.copy(phase = RoomPhase.FAILED, failure = AppException(ServerError.STREAMING_UNAVAILABLE))
+            _state.value = _state.value.copy(phase = RoomPhase.FAILED, failure = AppException(ServerError.STREAMING_UNAVAILABLE, IllegalStateException(reason)))
         }
     }
 

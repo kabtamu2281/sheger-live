@@ -7,6 +7,7 @@ S = {
 "actions_on_account": "Actions on your account",
 "all": "All",
 "allow_camera_mic": "Allow camera and microphone",
+"open_app_settings": "Open settings to allow access",
 "appeal": "Appeal",
 "appeal_message": "Tell us why this decision should be reviewed",
 "appeal_sent": "Appeal sent. A different reviewer will look at it.",
