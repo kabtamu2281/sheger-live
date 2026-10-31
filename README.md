@@ -2,11 +2,15 @@
 
 **[⬇ Download Sheger Live for Android](https://github.com/kabtamu2281/sheger-live/raw/main/sheger-live.apk)**
 
-Free beta · version 1.0.0-beta.3 · Android 8+ (64-bit) · about 32 MB
+Free · version 1.0.0 · Android 8+ (64-bit) · about 32 MB
 
 Go live, open voice parties, send gifts and chat across languages.
 
-## What's new in beta 3
+## What's new in 1.0.0
+- First full release, tested on real phones: live video, group video, voice parties, video calls, short videos, chat and gifts
+- New in rooms: if your camera or microphone is blocked, the room now tells you and opens the right setting; "Camera not showing?" help in the ⋯ menu
+
+## Beta 3
 - **Short videos:** a full-screen Home feed you swipe up and down — **For You**, **Following** and **Live**
 - **Like** (double-tap too), **comments**, **save** to your private list, and **share** with a real link
 - **Post videos** from your gallery or record with the camera (up to 3 minutes), with upload progress
